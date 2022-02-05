@@ -5,6 +5,7 @@
 #include <cmath>
 #include "assert.h"
 #include "data/BigRandomVectors.h"
+#define __AVX__
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -74,31 +75,40 @@ std::vector<float> applyFirFilterSingle(const std::vector<float>& signal, const 
     }
     return output;
 }
-#define __AVX__
+
 #ifdef __AVX__
 std::vector<float> applyFirFilterAVX(const std::vector<float>& signal, const std::vector<float>& impulseResponse) {
-    std::vector<float> output(signal.size() + impulseResponse.size() - 1u);
-
-    
-    
-    const auto& longer = signal.size() >= impulseResponse.size() ? signal : impulseResponse;
-    const auto& shorter = signal.size() < impulseResponse.size() ? signal : impulseResponse;
-
     constexpr auto AVX_FLOAT_COUNT = 256 / 32;
-    const auto vectorizableLength = highestMultipleOfNIn<AVX_FLOAT_COUNT>(longer.size()) * AVX_FLOAT_COUNT;
+    
+    const auto minimalPaddedSize = signal.size() + 2 * impulseResponse.size() - 2;
+    const auto avxAlignedPaddedSize = highestMultipleOfNIn<AVX_FLOAT_COUNT>(minimalPaddedSize - 1u) + 1;
 
-    std::vector<float> irChunk(AVX_FLOAT_COUNT, 0.f);
+    std::vector<float> paddedSignal(avxAlignedPaddedSize, 0);    
+    std::vector<float> output(signal.size() + impulseResponse.size() - 1u);
+    
+    const auto avxAlignedImpulseResponseSize = highestMultipleOfNIn<AVX_FLOAT_COUNT>(impulseResponse.size() - 1u) + 1;
+    std::vector<float> reversedImpulseResponse(avxAlignedImpulseResponseSize);
+    
+    std::reverse_copy(impulseResponse.begin(), impulseResponse.end(), reversedImpulseResponse.begin());
+    for (auto i = impulseResponse.size(); i < reversedImpulseResponse.size(); ++i) 
+        reversedImpulseResponse[i] = 0.f;
+    
+    const auto* x = paddedSignal.data();
+    const auto* c = reversedImpulseResponse.data();
+    const auto* out = output.data();
 
-    for (auto i = 0; i < vectorizableLength; i += AVX_FLOAT_COUNT) {
-        const auto startId = std::max(0, i - static_cast<int>(shorter.size()) + 1);
-        const auto endId = std::min(i, static_cast<int>(longer.size()) - 1);
-
+    for (auto i = 0; i < output.size(); i += AVX_FLOAT_COUNT) {
         auto temp = _mm256_setzero_ps();
 
 
-        // std::copy
+        for (auto j = 0; j < output.size(); j += AVX_FLOAT_COUNT) {
+
+            auto x_chunk = _mm256_loadu_ps(x + i + j);
+            auto c_chunk = _mm256_loadu_ps(c + j);
+
+
+        }
         
-        auto a = _mm256_loadu_ps(longer);
     }
 
 }
