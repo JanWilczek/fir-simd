@@ -3,69 +3,14 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
-#include <functional>
 #include <cmath>
-#include "assert.h"
-#include "data/BigRandomVectors.h"
 
 #ifdef __AVX__
 #include <immintrin.h>
 #endif
 
+#include "FIRFilter.h"
 
-std::vector<float> applyFirFilterSingle(const std::vector<float>& signal, const std::vector<float>& impulseResponse);
-
-template<typename T>
-T highestPowerOf2NotGreaterThan(T x) {
-    using namespace std;
-    return static_cast<T>(pow(2., floor(log2(static_cast<double>(x)))));
-}
-
-template<typename T>
-T highestMultipleOfNIn(T x, T N) {
-    return static_cast<long long>(x / N);
-}
-
-void testFirFilter(std::function<std::vector<float>(const std::vector<float>&,const std::vector<float>&)> filteringFunction) {
-    std::vector<float> signal{1.f, 2.f, 3.f, 4.f,};
-    std::vector<float> ir{1.f};
-
-    const auto filtered = filteringFunction(signal, ir);
-
-    assert(filtered == signal);
-
-    const auto filtered2 = filteringFunction(signal, {0.f, 1.f});
-
-    assert(filtered2[0] == 0.f);
-    assert(filtered2[1] == 1.f);
-    assert(filtered2[2] == 2.f);
-    assert(filtered2[3] == 3.f);
-    assert(filtered2[4] == 4.f);
-    assert(filtered2.size() == 5u);
-
-    std::vector<float> ir3{ 0.4f, 0.2f, 0.4f, -0.1f, -0.4f, -0.3f, -0.5f, -0.11f, -0.3f};
-    const auto expected = std::vector<float>{0.4f,  1.f,  2.f,  2.9f,  1.4f,  0.2f, -2.7f, -3.61f, -3.22f,
-       -2.93f, -1.34f, -1.2f};
-    
-    const auto filtered3 = filteringFunction(signal, ir3);
-    for (auto i = 0u; i < filtered3.size(); ++i) {
-        assert(std::abs(filtered3[i] - expected[i]) < 1e-6f);
-    }
-}
-
-void testFirFilterBigRandomVectors(std::function<std::vector<float>(const std::vector<float>&,const std::vector<float>&)> filteringFunction) {
-    std::cout << "Starting long vectors test." << std::endl;
-
-    const auto expected = applyFirFilterSingle(random1, random2);
-    const auto given = filteringFunction(random1, random2);
-
-    assert(expected.size() == given.size());
-    for (auto i = 0u; i < expected.size(); ++i) {
-        if (std::abs(expected[i] - given[i]) > 1e-4f) {
-            assert(false);
-        }
-    }
-}
 
 std::vector<float> applyFirFilterSingle(const std::vector<float>& signal, const std::vector<float>& impulseResponse) {
     std::vector<float> output(signal.size() + impulseResponse.size() - 1u);
@@ -136,9 +81,3 @@ std::vector<float> applyFirFilter(const std::vector<float>& signal, const std::v
 #endif
 }
 
-int main() {
-    testFirFilter(applyFirFilter);
-    testFirFilterBigRandomVectors(applyFirFilter);
-
-    std::cout << "Success!" << std::endl;
-}

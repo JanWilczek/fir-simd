@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 
 const std::vector<float> random1 = { 
