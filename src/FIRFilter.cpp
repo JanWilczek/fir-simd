@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
-#include <cmath>
 
 #ifdef __AVX__
 #include <immintrin.h>
