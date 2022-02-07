@@ -8,8 +8,6 @@ int main() {
   // testFirFilter(applyFirFilter);
   // testFirFilterBigRandomVectors(applyFirFilter);
 
-  // testFirFilterImpulseResponses(applyFirFilter);
-
   std::cout << "#------------- FIR filter single --------------------#"
             << std::endl;
   // benchmarkFirFilterImpulseResponses(applyFirFilterSingle);
@@ -18,6 +16,7 @@ int main() {
             << std::endl;
   // benchmarkFirFilterImpulseResponses(applyFirFilterAVX);
   benchmarkFirFilterBigRandomVectors(applyFirFilterAVX);
+  testFirFilterImpulseResponses(applyFirFilterAVX);
 
   std::cout << "Success!" << std::endl;
 }
