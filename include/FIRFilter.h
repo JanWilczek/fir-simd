@@ -65,7 +65,7 @@ struct FilterInput {
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
 
 #ifdef __AVX__
-constexpr size_t AVX_FLOAT_COUNT = 256u / 32u;
+constexpr auto AVX_FLOAT_COUNT = 8u;
 
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);

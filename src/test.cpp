@@ -74,11 +74,11 @@ void testFirFilterImpulseResponses(
   AudioFile<float> impulseResponse;
   impulseResponse.load("./../include/data/classroomImpulseResponse.wav");
 
-  FilterInput<float> input(signal.samples[0], impulseResponse.samples[0], 1u);
+  FilterInput<float> input(signal.samples[0], impulseResponse.samples[0], AVX_FLOAT_COUNT);
   FilterInput<float> inputAligned(signal.samples[0], impulseResponse.samples[0],
                                   alignment);
 
-  const auto expected = applyFirFilterSingle(input);
+  const auto expected = applyFirFilterAVX_innerLoopVectorization(input);
 
   const auto filteredSignal = filteringFunction(inputAligned);
 

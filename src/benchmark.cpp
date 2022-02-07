@@ -26,7 +26,7 @@ void benchmarkFirFilterImpulseResponses(
       1);
 
   std::cout << "Average execution time: " << benchmarkResult.averageTime.count()
-            << " ms." << std::endl;
+            << " us." << std::endl;
 }
 
 void benchmarkFirFilterBigRandomVectors(
@@ -41,5 +41,5 @@ void benchmarkFirFilterBigRandomVectors(
       [&] { return filteringFunction(input); }, 20);
 
   std::cout << "Average execution time: " << benchmarkResult.averageTime.count()
-            << " ms." << std::endl;
+            << " us." << std::endl;
 }
