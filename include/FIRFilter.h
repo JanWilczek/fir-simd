@@ -69,6 +69,9 @@ constexpr size_t AVX_FLOAT_COUNT = 256u / 32u;
 
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);
+
+std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
+    FilterInput<float>& input);
 #endif
 
 std::vector<float> applyFirFilter(FilterInput<float>& input);

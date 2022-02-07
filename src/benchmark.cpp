@@ -38,7 +38,7 @@ void benchmarkFirFilterBigRandomVectors(
   FilterInput<float> input(random1, random2, alignment);
 
   const auto benchmarkResult = benchmark<std::vector<float>>(
-      [&] { return filteringFunction(input); }, 100);
+      [&] { return filteringFunction(input); }, 20);
 
   std::cout << "Average execution time: " << benchmarkResult.averageTime.count()
             << " ms." << std::endl;

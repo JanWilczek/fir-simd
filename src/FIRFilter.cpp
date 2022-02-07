@@ -10,7 +10,7 @@
 
 #include "FIRFilter.h"
 
-std::vector<float> applyFirFilterSingle(FilterInput<float>& input){
+std::vector<float> applyFirFilterSingle(FilterInput<float>& input) {
   const auto* x = input.x;
   const auto* c = input.c;
   auto* output = input.y;
@@ -25,7 +25,8 @@ std::vector<float> applyFirFilterSingle(FilterInput<float>& input){
 }
 
 #ifdef __AVX__
-std::vector<float> applyFirFilterAVX_innerLoopVectorization(FilterInput<float>& input) {
+std::vector<float> applyFirFilterAVX_innerLoopVectorization(
+    FilterInput<float>& input) {
   const auto* x = input.x;
   const auto* c = input.c;
 
@@ -59,22 +60,31 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
 
   std::array<float, AVX_FLOAT_COUNT> outStore;
 
+  alignas(AVX_FLOAT_COUNT * alignof(float)) std::array<__m256, AVX_FLOAT_COUNT> outChunk;
+
   // Inner loop vectorization
-  for (auto i = 0; i < input.outputLength; ++i) {
-    auto outChunk = _mm256_setzero_ps();
-
-    for (auto j = 0; j < input.filterLength; j += AVX_FLOAT_COUNT) {
-      auto xChunk = _mm256_loadu_ps(x + i + j);
-      auto cChunk = _mm256_loadu_ps(c + j);
-
-      auto temp = _mm256_mul_ps(xChunk, cChunk);
-
-      outChunk = _mm256_add_ps(outChunk, temp);
+  for (auto i = 0; i < input.outputLength; i += AVX_FLOAT_COUNT) {
+    for (auto k = 0; k < AVX_FLOAT_COUNT; ++k) {
+      outChunk[i] = _mm256_setzero_ps();
     }
 
-    _mm256_storeu_ps(outStore.data(), outChunk);
+    for (auto j = 0; j < input.filterLength; j += AVX_FLOAT_COUNT) {
+      auto cChunk = _mm256_loadu_ps(c + j);
 
-    input.y[i] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
+      for (auto k = 0; k < AVX_FLOAT_COUNT; ++k) {
+        auto xChunk = _mm256_loadu_ps(x + i + j + k);
+
+        auto temp = _mm256_mul_ps(xChunk, cChunk);
+
+        outChunk[k] = _mm256_add_ps(outChunk[k], temp);
+      }
+    }
+
+    for (auto k = 0; k < AVX_FLOAT_COUNT; ++k) {
+      _mm256_storeu_ps(outStore.data(), outChunk[k]);
+
+      input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
+    }
   }
 
   return input.output();
