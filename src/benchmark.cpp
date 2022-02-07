@@ -7,9 +7,8 @@
 #include "data/BigRandomVectors.h"
 
 void benchmarkFirFilterImpulseResponses(
-    std::function<std::vector<float>(const std::vector<float>&,
-                                     const std::vector<float>&)>
-        filteringFunction) {
+    std::function<std::vector<float>(FilterInput<float>&)>
+        filteringFunction, size_t alignment) {
   std::cout << "Starting impulse responses benchmark." << std::endl;
 
   AudioFile<float> signal;
@@ -17,9 +16,12 @@ void benchmarkFirFilterImpulseResponses(
   AudioFile<float> impulseResponse;
   impulseResponse.load("./../include/data/classroomImpulseResponse.wav");
 
+  FilterInput<float> input(signal.samples[0], impulseResponse.samples[0],
+                          alignment);
+
   const auto benchmarkResult = benchmark<std::vector<float>>(
       [&] {
-        return filteringFunction(signal.samples[0], impulseResponse.samples[0]);
+        return filteringFunction(input);
       },
       1);
 
@@ -28,13 +30,15 @@ void benchmarkFirFilterImpulseResponses(
 }
 
 void benchmarkFirFilterBigRandomVectors(
-    std::function<std::vector<float>(const std::vector<float>&,
-                                     const std::vector<float>&)>
-        filteringFunction) {
+    std::function<std::vector<float>(FilterInput<float>&)>
+        filteringFunction,
+    size_t alignment) {
   std::cout << "Starting big random vectors benchmark." << std::endl;
 
+  FilterInput<float> input(random1, random2, alignment);
+
   const auto benchmarkResult = benchmark<std::vector<float>>(
-      [&] { return filteringFunction(random1, random2); }, 20);
+      [&] { return filteringFunction(input); }, 100);
 
   std::cout << "Average execution time: " << benchmarkResult.averageTime.count()
             << " ms." << std::endl;

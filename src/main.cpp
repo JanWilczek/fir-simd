@@ -11,12 +11,14 @@ int main() {
   std::cout << "#------------- FIR filter single --------------------#"
             << std::endl;
   // benchmarkFirFilterImpulseResponses(applyFirFilterSingle);
-  benchmarkFirFilterBigRandomVectors(applyFirFilterSingle);
+  benchmarkFirFilterBigRandomVectors(applyFirFilterSingle, 1u);
   std::cout << "#------------- FIR filter AVX --------------------#"
+            << "#------------- Inner Loop Vectorization --------------------#"
             << std::endl;
   // benchmarkFirFilterImpulseResponses(applyFirFilterAVX);
-  benchmarkFirFilterBigRandomVectors(applyFirFilterAVX);
-  testFirFilterImpulseResponses(applyFirFilterAVX);
+  benchmarkFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
+                                     AVX_FLOAT_COUNT);
+  // testFirFilterImpulseResponses(applyFirFilterAVX, AVX_FLOAT_COUNT);
 
   std::cout << "Success!" << std::endl;
 }

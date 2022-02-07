@@ -21,8 +21,9 @@ struct FilterInput {
     const auto alignedPaddedSize =
         alignment *
         (highestMultipleOfNIn(minimalPaddedSize - 1u, alignment) + 1u);
+    inputLength = alignedPaddedSize;
 
-    inputStorage.resize(alignedPaddedSize, 0.f);
+    inputStorage.resize(inputLength, 0.f);
     std::copy(inputSignal.begin(), inputSignal.end(),
               inputStorage.begin() + filter.size() - 1u);
 
@@ -49,6 +50,7 @@ struct FilterInput {
 
   size_t alignment;
   const SampleType* x;  // input signal
+  size_t inputLength;
   const SampleType* c;  // reversed filter coefficients
   size_t filterLength;
   SampleType* y;  // output (filtered) signal
@@ -60,14 +62,13 @@ struct FilterInput {
   std::vector<SampleType> outputStorage;
 };
 
-std::vector<float> applyFirFilterSingle(
-    const std::vector<float>& signal,
-    const std::vector<float>& impulseResponse);
+std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
 
 #ifdef __AVX__
-std::vector<float> applyFirFilterAVX(const std::vector<float>& signal,
-                                     const std::vector<float>& impulseResponse);
+constexpr size_t AVX_FLOAT_COUNT = 256u / 32u;
+
+std::vector<float> applyFirFilterAVX_innerLoopVectorization(
+    FilterInput<float>& input);
 #endif
 
-std::vector<float> applyFirFilter(const std::vector<float>& signal,
-                                  const std::vector<float>& impulseResponse);
+std::vector<float> applyFirFilter(FilterInput<float>& input);
