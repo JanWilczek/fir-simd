@@ -14,6 +14,8 @@ int main() {
             << std::endl;
   benchmarkFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
                                      AVX_FLOAT_COUNT);
+  benchmarkFirFilterImpulseResponses(applyFirFilterAVX_innerLoopVectorization,
+                                     AVX_FLOAT_COUNT);
   std::cout
       << "#------------- Outer-Inner Loop Vectorization --------------------#"
       << std::endl;
