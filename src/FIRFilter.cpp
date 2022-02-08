@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <iostream>
 #include <numeric>
 #include <vector>
-#include <cassert>
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -16,9 +16,9 @@ std::vector<float> applyFirFilterSingle(FilterInput<float>& input) {
   const auto* c = input.c;
   auto* output = input.y;
 
-  for (int i = 0; i < input.outputLength; ++i) {
+  for (auto i = 0u; i < input.outputLength; ++i) {
     output[i] = x[0] * c[0];
-    for (auto j = 1; j < input.filterLength; ++j) {
+    for (auto j = 1u; j < input.filterLength; ++j) {
       output[i] += x[i + j] * c[j];
     }
   }
@@ -34,10 +34,10 @@ std::vector<float> applyFirFilterAVX_innerLoopVectorization(
   std::array<float, AVX_FLOAT_COUNT> outStore;
 
   // Inner loop vectorization
-  for (auto i = 0; i < input.outputLength; ++i) {
+  for (auto i = 0u; i < input.outputLength; ++i) {
     auto outChunk = _mm256_setzero_ps();
 
-    for (auto j = 0; j < input.filterLength; j += AVX_FLOAT_COUNT) {
+    for (auto j = 0u; j < input.filterLength; j += AVX_FLOAT_COUNT) {
       auto xChunk = _mm256_loadu_ps(x + i + j);
       auto cChunk = _mm256_loadu_ps(c + j);
 
@@ -61,11 +61,11 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
 
   std::array<float, AVX_FLOAT_COUNT> outStore;
 
-  alignas(AVX_FLOAT_COUNT * alignof(float)) std::array<__m256, AVX_FLOAT_COUNT> outChunk;
+  alignas(AVX_FLOAT_COUNT * alignof(float)) std::array<__m256, AVX_FLOAT_COUNT>
+      outChunk;
 
-  // Inner loop vectorization
-  for (auto i = 0ul; i < input.outputLength; i += AVX_FLOAT_COUNT) {
-    for (auto k = 0ul; k < AVX_FLOAT_COUNT; ++k) {
+  for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
       outChunk[k] = _mm256_setzero_ps();
     }
 
@@ -81,8 +81,8 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
       }
     }
 
-    for (auto k = 0ul; k < AVX_FLOAT_COUNT; ++k) {
-        _mm256_storeu_ps(outStore.data(), outChunk[k]);
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
+      _mm256_storeu_ps(outStore.data(), outChunk[k]);
 
       input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
     }

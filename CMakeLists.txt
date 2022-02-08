@@ -8,4 +8,8 @@ target_include_directories(FIR_SIMD
 PUBLIC "${PROJECT_SOURCE_DIR}/dependencies"
 PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
-# target_compile_options(FIR_SIMD PRIVATE /arch:AVX)
+if (MSVC)
+    target_compile_options(FIR_SIMD 
+                PRIVATE /EHsc
+                PRIVATE /arch:AVX)
+endif()
