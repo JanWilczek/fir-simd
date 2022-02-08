@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 
 template <typename T>
 T highestPowerOf2NotGreaterThan(T x) {
@@ -11,6 +12,10 @@ template <typename T>
 T highestMultipleOfNIn(T x, T N) {
   return static_cast<long long>(x / N);
 }
+
+#ifdef __AVX__
+constexpr auto AVX_FLOAT_COUNT = 8u;
+#endif
 
 template <typename SampleType>
 struct FilterInput {
@@ -44,9 +49,34 @@ struct FilterInput {
     c = reversedFilterCoefficientsStorage.data();
     filterLength = reversedFilterCoefficientsStorage.size();
     y = outputStorage.data();
+
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k)
+    {
+      const auto alignedStorageSize =
+          reversedFilterCoefficientsStorage.size() + AVX_FLOAT_COUNT - 1u;
+      alignedReversedFilterCoefficientsStorage[k].resize(alignedStorageSize);
+
+      for (auto i = 0u; i < k; ++i)
+      {
+        alignedReversedFilterCoefficientsStorage[k][i] = 0.f;
+      }
+      std::copy(reversedFilterCoefficientsStorage.begin(),
+                reversedFilterCoefficientsStorage.end(),
+                alignedReversedFilterCoefficientsStorage[k].begin() + k);
+      for (auto i = reversedFilterCoefficientsStorage.size() + k;
+           i < alignedStorageSize; ++i)
+      {
+        alignedReversedFilterCoefficientsStorage[k][i] = 0.f;
+      }
+    }
+    cAligned = alignedReversedFilterCoefficientsStorage.data();
   }
 
-  std::vector<SampleType> output() { return outputStorage; }
+  std::vector<SampleType> output() {
+    auto result = outputStorage;
+    result.resize(outputLength);
+    return result;
+  }
 
   size_t alignment;
   const SampleType* x;  // input signal
@@ -55,22 +85,26 @@ struct FilterInput {
   size_t filterLength;
   SampleType* y;  // output (filtered) signal
   size_t outputLength;
+  std::vector<SampleType>* cAligned;
 
  private:
   std::vector<SampleType> inputStorage;
   std::vector<SampleType> reversedFilterCoefficientsStorage;
   std::vector<SampleType> outputStorage;
+  std::array<std::vector<SampleType>, AVX_FLOAT_COUNT>
+      alignedReversedFilterCoefficientsStorage;
 };
 
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
 
 #ifdef __AVX__
-constexpr auto AVX_FLOAT_COUNT = 8u;
-
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);
 
 std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
+    FilterInput<float>& input);
+
+std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
     FilterInput<float>& input);
 #endif
 

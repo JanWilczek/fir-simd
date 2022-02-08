@@ -73,7 +73,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
       auto cChunk = _mm256_loadu_ps(c + j);
 
       for (auto k = 0ul; k < AVX_FLOAT_COUNT; ++k) {
-          auto xChunk = _mm256_loadu_ps(x + i + j + k);
+        auto xChunk = _mm256_loadu_ps(x + i + j + k);
 
         auto temp = _mm256_mul_ps(xChunk, cChunk);
 
@@ -84,7 +84,50 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
     for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
       _mm256_storeu_ps(outStore.data(), outChunk[k]);
 
-      input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
+      if (i + k < input.outputLength)
+        input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
+    }
+  }
+
+  return input.output();
+}
+
+std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
+    FilterInput<float>& input) {
+  const auto* x = input.x;
+  const auto* cAligned = input.cAligned;
+
+  std::array<float, AVX_FLOAT_COUNT> outStore;
+
+  alignas(AVX_FLOAT_COUNT * alignof(float)) std::array<__m256, AVX_FLOAT_COUNT>
+      outChunk;
+
+  for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
+      outChunk[k] = _mm256_setzero_ps();
+    }
+
+    for (auto j = 0u; j < input.filterLength; j += AVX_FLOAT_COUNT) {
+      auto xChunk = _mm256_loadu_ps(x + i + j);
+      // if (i + j >= input.inputLength)
+      // std::cout << i + j << "/" << input.inputLength << std::endl;
+
+      for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
+        // if (k + j >= input.filterLength)
+        // std::cout << j + k << "/" << input.filterLength << std::endl;
+        auto cChunk = _mm256_loadu_ps(cAligned[k].data() + j);
+
+        auto temp = _mm256_mul_ps(xChunk, cChunk);
+
+        outChunk[k] = _mm256_add_ps(outChunk[k], temp);
+      }
+    }
+
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
+      _mm256_storeu_ps(outStore.data(), outChunk[k]);
+      if (i + k < input.outputLength)
+        // std::cout << i + k << "/" << input.outputLength << std::endl;
+        input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
     }
   }
 

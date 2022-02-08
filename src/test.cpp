@@ -49,8 +49,8 @@ void testFirFilterTwoVectors(
     const std::vector<float>& signal, const std::vector<float>& impulseResponse,
     std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
     size_t alignment) {
-  FilterInput<float> input(signal, impulseResponse, 1u);
-  const auto expected = applyFirFilterSingle(input);
+  FilterInput<float> input(signal, impulseResponse, AVX_FLOAT_COUNT);
+  const auto expected = applyFirFilterAVX_innerLoopVectorization(input);
   FilterInput<float> inputAligned(signal, impulseResponse, alignment);
   const auto given = filteringFunction(inputAligned);
 
@@ -78,13 +78,13 @@ void testFirFilterImpulseResponses(
   FilterInput<float> inputAligned(signal.samples[0], impulseResponse.samples[0],
                                   alignment);
 
-  const auto expected = applyFirFilterAVX_innerLoopVectorization(input);
+  const auto expected = applyFirFilterAVX_outerInnerLoopVectorization(input);
 
   const auto filteredSignal = filteringFunction(inputAligned);
 
   /*assertEqualVectors(expected, filteredSignal, 1e-5f);*/
   auto maximumAbsoluteError = 0.f;
-  for (auto i = 0u; i < expected.size(); ++i) {
+  for (auto i = 0u; i < input.outputLength; ++i) {
     const auto absoluteError = std::abs(expected[i] - filteredSignal[i]);
     if (absoluteError > maximumAbsoluteError) {
       maximumAbsoluteError = absoluteError;
