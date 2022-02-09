@@ -13,3 +13,5 @@ if (MSVC)
                 PRIVATE /EHsc
                 PRIVATE /arch:AVX)
 endif()
+
+set_property(TARGET FIR_SIMD PROPERTY CXX_STANDARD 20)

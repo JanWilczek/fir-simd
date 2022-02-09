@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <array>
+#include <algorithm>
 
 template <typename T>
 T highestPowerOf2NotGreaterThan(T x) {

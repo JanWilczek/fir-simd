@@ -4,6 +4,8 @@
 #include <iostream>
 #include <numeric>
 #include <vector>
+#include <memory>
+#include <new>
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -97,9 +99,11 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
   const auto* x = input.x;
   const auto* cAligned = input.cAligned;
 
-  std::array<float, AVX_FLOAT_COUNT> outStore;
+    //std::unique_ptr<float[]> outStore{
+      //new (std::align_val_t{alignof(__m256)}) float[AVX_FLOAT_COUNT]};
+  alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
 
-  alignas(AVX_FLOAT_COUNT * alignof(float)) std::array<__m256, AVX_FLOAT_COUNT>
+  std::array<__m256, AVX_FLOAT_COUNT>
       outChunk;
 
   for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
@@ -124,7 +128,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
     }
 
     for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
-      _mm256_storeu_ps(outStore.data(), outChunk[k]);
+      _mm256_store_ps(outStore.data(), outChunk[k]);
       if (i + k < input.outputLength)
         // std::cout << i + k << "/" << input.outputLength << std::endl;
         input.y[i + k] = std::accumulate(outStore.begin(), outStore.end(), 0.f);
