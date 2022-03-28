@@ -2,10 +2,10 @@
 #include <array>
 #include <cassert>
 #include <iostream>
-#include <numeric>
-#include <vector>
 #include <memory>
 #include <new>
+#include <numeric>
+#include <vector>
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -99,12 +99,11 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
   const auto* x = input.x;
   const auto* cAligned = input.cAligned;
 
-    //std::unique_ptr<float[]> outStore{
-      //new (std::align_val_t{alignof(__m256)}) float[AVX_FLOAT_COUNT]};
+  // std::unique_ptr<float[]> outStore{
+  // new (std::align_val_t{alignof(__m256)}) float[AVX_FLOAT_COUNT]};
   alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
 
-  std::array<__m256, AVX_FLOAT_COUNT>
-      outChunk;
+  std::array<__m256, AVX_FLOAT_COUNT> outChunk;
 
   for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
     for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {

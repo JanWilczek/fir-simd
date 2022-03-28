@@ -1,7 +1,7 @@
 #pragma once
-#include <vector>
-#include <array>
 #include <algorithm>
+#include <array>
+#include <vector>
 
 template <typename T>
 T highestPowerOf2NotGreaterThan(T x) {
@@ -21,7 +21,8 @@ constexpr auto AVX_FLOAT_COUNT = 8u;
 template <typename SampleType>
 struct FilterInput {
   FilterInput(const std::vector<SampleType>& inputSignal,
-              const std::vector<SampleType>& filter, size_t alignment = 1u)
+              const std::vector<SampleType>& filter,
+              size_t alignment = 1u)
       : alignment(alignment) {
     const auto minimalPaddedSize = inputSignal.size() + 2 * filter.size() - 2u;
     const auto alignedPaddedSize =
@@ -51,22 +52,19 @@ struct FilterInput {
     filterLength = reversedFilterCoefficientsStorage.size();
     y = outputStorage.data();
 
-    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k)
-    {
+    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
       const auto alignedStorageSize =
           reversedFilterCoefficientsStorage.size() + AVX_FLOAT_COUNT - 1u;
       alignedReversedFilterCoefficientsStorage[k].resize(alignedStorageSize);
 
-      for (auto i = 0u; i < k; ++i)
-      {
+      for (auto i = 0u; i < k; ++i) {
         alignedReversedFilterCoefficientsStorage[k][i] = 0.f;
       }
       std::copy(reversedFilterCoefficientsStorage.begin(),
                 reversedFilterCoefficientsStorage.end(),
                 alignedReversedFilterCoefficientsStorage[k].begin() + k);
       for (auto i = reversedFilterCoefficientsStorage.size() + k;
-           i < alignedStorageSize; ++i)
-      {
+           i < alignedStorageSize; ++i) {
         alignedReversedFilterCoefficientsStorage[k][i] = 0.f;
       }
     }
