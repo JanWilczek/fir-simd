@@ -2,13 +2,18 @@ cmake_minimum_required(VERSION 3.10)
 
 project(FIR_SIMD)
 
-file(GLOB SOURCES "src/*.cpp")
+set(SOURCES
+    src/benchmark.cpp
+    src/FIRFilter.cpp
+    src/main.cpp
+    src/test.cpp
+)
 
 add_executable(FIR_SIMD ${SOURCES})
 
 target_include_directories(FIR_SIMD 
-    PUBLIC ${PROJECT_SOURCE_DIR}/dependencies
-    PUBLIC ${PROJECT_SOURCE_DIR}/include)
+    PUBLIC dependencies
+    PUBLIC include)
 
 if (MSVC)
     target_compile_options(FIR_SIMD 

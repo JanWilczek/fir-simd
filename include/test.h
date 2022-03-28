@@ -3,12 +3,13 @@
 #include <functional>
 #include <vector>
 
-
+namespace fir {
 template <typename SampleType>
 struct FilterInput;
+}
 
 void testFirFilter(
-    std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
+    std::function<std::vector<float>(fir::FilterInput<float>&)> filteringFunction,
     size_t alignment);
 
 template <typename T>
@@ -23,9 +24,9 @@ void assertEqualVectors(const std::vector<T>& a, const std::vector<T>& b,
 }
 
 void testFirFilterBigRandomVectors(
-    std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
+    std::function<std::vector<float>(fir::FilterInput<float>&)> filteringFunction,
     size_t alignment);
 
 void testFirFilterImpulseResponses(
-    std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
+    std::function<std::vector<float>(fir::FilterInput<float>&)> filteringFunction,
     size_t alignment);

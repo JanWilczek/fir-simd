@@ -3,8 +3,10 @@
 #include <functional>
 #include <vector>
 
+namespace fir {
 template <typename SampleType>
 struct FilterInput;
+}
 
 template <typename ResultType>
 struct Result {
@@ -34,9 +36,10 @@ Result<ResultType> benchmark(std::function<ResultType()> function,
 }
 
 void benchmarkFirFilterImpulseResponses(
-    std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
+    std::function<std::vector<float>(fir::FilterInput<float>&)> filteringFunction,
     size_t alignment = 1u);
 
 void benchmarkFirFilterBigRandomVectors(
-    std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
+    std::function<std::vector<float>(fir::FilterInput<float>&)>
+        filteringFunction,
     size_t alignment = 1u);

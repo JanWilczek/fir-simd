@@ -6,6 +6,8 @@
 #include "FIRFilter.h"
 #include "data/BigRandomVectors.h"
 
+using namespace fir;
+
 void benchmarkFirFilterImpulseResponses(
     std::function<std::vector<float>(FilterInput<float>&)>
         filteringFunction, size_t alignment) {

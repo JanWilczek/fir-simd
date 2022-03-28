@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 
+namespace fir {
 template <typename T>
 T highestPowerOf2NotGreaterThan(T x) {
   using namespace std;
@@ -100,6 +101,9 @@ std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);
 
+std::vector<float> applyFirFilterAVX_outerLoopVectorization(
+    FilterInput<float>& input);
+
 std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
     FilterInput<float>& input);
 
@@ -108,3 +112,4 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
 #endif
 
 std::vector<float> applyFirFilter(FilterInput<float>& input);
+}  // namespace fir
