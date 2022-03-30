@@ -103,6 +103,9 @@ std::vector<float> applyFirFilterInnerLoopVectorization(
 std::vector<float> applyFirFilterOuterLoopVectorization(
     FilterInput<float>& input);
 
+std::vector<float> applyFirFilterOuterInnerLoopVectorization(
+    FilterInput<float>& input);
+
 #ifdef __AVX__
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);

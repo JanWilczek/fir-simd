@@ -65,6 +65,34 @@ std::vector<float> applyFirFilterOuterLoopVectorization(
   return input.output();
 }
 
+std::vector<float> applyFirFilterOuterInnerLoopVectorization(
+    FilterInput<float>& input) {
+  const auto* x = input.x;
+  const auto* c = input.c;
+  auto* y = input.y;
+
+  for (auto i = 0u; i < input.outputLength; i += 4) {
+    y[i] = 0.f;
+    y[i + 1] = 0.f;
+    y[i + 2] = 0.f;
+    y[i + 3] = 0.f;
+    for (auto j = 0u; j < input.filterLength; j += 4) {
+      y[i] += x[i + j] * c[j] + x[i + j + 1] * c[j + 1] +
+              x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3];
+
+      y[i + 1] += x[i + j + 1] * c[j + 1] + x[i + j + 2] * c[j + 2] +
+                  x[i + j + 3] * c[j + 3] + x[i + j + 4] * c[j + 4];
+
+      y[i + 2] += x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3] +
+                  x[i + j + 4] * c[j + 4] + x[i + j + 5] * c[j + 5];
+
+      y[i + 3] += x[i + j + 3] * c[j + 3] + x[i + j + 4] * c[j + 4] +
+                  x[i + j + 5] * c[j + 5] + x[i + j + 6] * c[j + 6];
+    }
+  }
+  return input.output();
+}
+
 #ifdef __AVX__
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input) {

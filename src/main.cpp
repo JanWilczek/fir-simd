@@ -21,11 +21,12 @@ int main() {
                                      //AVX_FLOAT_COUNT);
   std::cout << "#------------- Outer Loop Vectorization --------------------#"
             << std::endl;
-  testFirFilterBigRandomVectors(applyFirFilterAVX_outerLoopVectorization, 1u);
-  testFirFilterBigRandomVectors(applyFirFilterOuterLoopVectorization, 1u);
+  //testFirFilterBigRandomVectors(applyFirFilterAVX_outerLoopVectorization, 1u);
+  //testFirFilterBigRandomVectors(applyFirFilterOuterLoopVectorization, 1u);
   std::cout
       << "#------------- Outer-Inner Loop Vectorization --------------------#"
       << std::endl;
+  testFirFilterBigRandomVectors(applyFirFilterOuterInnerLoopVectorization, 1u);
   benchmarkFirFilterBigRandomVectors(
       applyFirFilterAVX_outerInnerLoopVectorization, AVX_FLOAT_COUNT);
   //benchmarkFirFilterImpulseResponses(
