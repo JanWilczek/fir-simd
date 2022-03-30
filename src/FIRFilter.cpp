@@ -100,8 +100,6 @@ std::vector<float> applyFirFilterAVX_outerLoopVectorization(
   const auto* c = input.c;
   auto* y = input.y;
 
-  std::array<float, AVX_FLOAT_COUNT> outStore;
-
   for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
     auto yChunk = _mm256_setzero_ps();
 
