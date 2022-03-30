@@ -14,6 +14,7 @@ int main() {
             << std::endl
             << "#------------- Inner Loop Vectorization --------------------#"
             << std::endl;
+  testFirFilterBigRandomVectors(applyFirFilterInnerLoopVectorization, 1u);
   //benchmarkFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
                                      //AVX_FLOAT_COUNT);
   //benchmarkFirFilterImpulseResponses(applyFirFilterAVX_innerLoopVectorization,
@@ -21,6 +22,7 @@ int main() {
   std::cout << "#------------- Outer Loop Vectorization --------------------#"
             << std::endl;
   testFirFilterBigRandomVectors(applyFirFilterAVX_outerLoopVectorization, 1u);
+  testFirFilterBigRandomVectors(applyFirFilterOuterLoopVectorization, 1u);
   std::cout
       << "#------------- Outer-Inner Loop Vectorization --------------------#"
       << std::endl;

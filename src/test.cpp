@@ -50,20 +50,20 @@ FilterInput<float> input3(signal, ir3, alignment);
 void testFirFilterTwoVectors(
     const std::vector<float>& signal, const std::vector<float>& impulseResponse,
     std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
-    size_t alignment) {
+    size_t alignment, float relativeError = 1e-6f) {
   FilterInput<float> input(signal, impulseResponse, AVX_FLOAT_COUNT);
   const auto expected = applyFirFilterAVX_innerLoopVectorization(input);
   FilterInput<float> inputAligned(signal, impulseResponse, alignment);
   const auto given = filteringFunction(inputAligned);
 
-  assertEqualVectors(expected, given, 1e-6f);
+  assertEqualVectors(expected, given, relativeError);
 }
 
 void testFirFilterBigRandomVectors(
     std::function<std::vector<float>(FilterInput<float>&)> filteringFunction,
     size_t alignment) {
   std::cout << "Starting long vectors test." << std::endl;
-  testFirFilterTwoVectors(random1, random2, filteringFunction, alignment);
+  testFirFilterTwoVectors(random1, random2, filteringFunction, alignment, 1e-2f);
 }
 
 void testFirFilterImpulseResponses(

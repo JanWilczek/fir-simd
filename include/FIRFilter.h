@@ -97,6 +97,12 @@ struct FilterInput {
 
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
 
+std::vector<float> applyFirFilterInnerLoopVectorization(
+    FilterInput<float>& input);
+
+std::vector<float> applyFirFilterOuterLoopVectorization(
+    FilterInput<float>& input);
+
 #ifdef __AVX__
 std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);

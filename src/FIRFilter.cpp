@@ -17,12 +17,49 @@ namespace fir {
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input) {
   const auto* x = input.x;
   const auto* c = input.c;
-  auto* output = input.y;
+  auto* y = input.y;
 
   for (auto i = 0u; i < input.outputLength; ++i) {
-    output[i] = x[0] * c[0];
+    y[i] = x[0] * c[0];
     for (auto j = 1u; j < input.filterLength; ++j) {
-      output[i] += x[i + j] * c[j];
+      y[i] += x[i + j] * c[j];
+    }
+  }
+  return input.output();
+}
+
+std::vector<float> applyFirFilterInnerLoopVectorization(
+    FilterInput<float>& input) {
+  const auto* x = input.x;
+  const auto* c = input.c;
+  auto* y = input.y;
+
+  for (auto i = 0u; i < input.outputLength; ++i) {
+    y[i] = 0.f;
+    for (auto j = 0u; j < input.filterLength; j += 4) {
+      y[i] += x[i + j] * c[j] + x[i + j + 1] * c[j + 1] +
+              x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3];
+    }
+  }
+  return input.output();
+}
+
+std::vector<float> applyFirFilterOuterLoopVectorization(
+    FilterInput<float>& input) {
+  const auto* x = input.x;
+  const auto* c = input.c;
+  auto* y = input.y;
+
+  for (auto i = 0u; i < input.outputLength; i += 4) {
+    y[i] = 0.f;
+    y[i + 1] = 0.f;
+    y[i + 2] = 0.f;
+    y[i + 3] = 0.f;
+    for (auto j = 0u; j < input.filterLength; ++j) {
+      y[i] += x[i + j] * c[j];
+      y[i + 1] += x[i + j + 1] * c[j];
+      y[i + 2] += x[i + j + 2] * c[j];
+      y[i + 3] += x[i + j + 3] * c[j];
     }
   }
   return input.output();
@@ -61,14 +98,12 @@ std::vector<float> applyFirFilterAVX_outerLoopVectorization(
     FilterInput<float>& input) {
   const auto* x = input.x;
   const auto* c = input.c;
+  auto* y = input.y;
 
   std::array<float, AVX_FLOAT_COUNT> outStore;
 
   for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
-    auto outChunk = _mm256_setzero_ps();
-
     auto yChunk = _mm256_setzero_ps();
-    _mm256_storeu_ps(input.y + i, yChunk);
 
     for (auto j = 0u; j < input.filterLength; ++j) {
       auto xChunk = _mm256_loadu_ps(x + i + j);
@@ -77,14 +112,9 @@ std::vector<float> applyFirFilterAVX_outerLoopVectorization(
       auto temp = _mm256_mul_ps(xChunk, cChunk);
 
       yChunk = _mm256_add_ps(yChunk, temp);
-
-      auto yChunk = _mm256_loadu_ps(input.y + i);
     }
 
-    yChunk = _mm256_add_ps(yChunk, outChunk);
-    _mm256_storeu_ps(outStore.data(), outChunk);
-
-
+    _mm256_storeu_ps(y + i, yChunk);
   }
 
   return input.output();
