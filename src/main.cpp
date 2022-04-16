@@ -44,22 +44,22 @@ void test() {
 }
 
 void benchmark() {
-  //std::cout << "#------------- FIR filter single --------------------#"
-  //          << std::endl;
+  std::cout << "#------------- FIR filter single --------------------#"
+            << std::endl;
   //benchmarkFirFilterBigRandomVectors<alignof(float)>(applyFirFilterSingle);
 
-  //std::cout
-  //    << "#------------- FIR filter AVX --------------------#" << std::endl
-  //    << "#------------- Inner Loop Vectorization --------------------#"
-  //    << std::endl;
-  //benchmarkFirFilterBigRandomVectors<alignof(float)>(
-  //    applyFirFilterAVX_innerLoopVectorization);
+  std::cout
+      << "#------------- FIR filter AVX --------------------#" << std::endl
+      << "#------------- Inner Loop Vectorization --------------------#"
+      << std::endl;
+  benchmarkFirFilterBigRandomVectors<alignof(float)>(
+      applyFirFilterAVX_innerLoopVectorization);
 
-  //std::cout
-  //    << "#------------- Outer Loop Vectorization --------------------#"
-  //    << std::endl;
-  //benchmarkFirFilterBigRandomVectors<alignof(float)>(
-  //    applyFirFilterAVX_outerLoopVectorization);
+  std::cout
+      << "#------------- Outer Loop Vectorization --------------------#"
+      << std::endl;
+  //benchmarkFirFilterBigRandomVectors<fir::AVX_FLOAT_COUNT * alignof(float)>(
+      //applyFirFilterAVX_outerLoopVectorization);
 
   std::cout << "#------------- Outer-Inner Loop Vectorization "
                "--------------------#"
@@ -75,7 +75,7 @@ void benchmark() {
 }
 
 int main() {
-  test();
+  //test();
   benchmark();
   std::cout << "Success!" << std::endl;
 }
