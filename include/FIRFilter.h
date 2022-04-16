@@ -27,8 +27,8 @@ struct FilterInput {
               const std::vector<SampleType>& filter) {
     const auto minimalPaddedSize = inputSignal.size() + 2 * filter.size() - 2u;
     const auto alignedPaddedSize =
-        alignment *
-        (highestMultipleOfNIn(minimalPaddedSize - 1u, alignment) + 1u);
+        VECTOR_SIZE *
+        (highestMultipleOfNIn(minimalPaddedSize - 1u, VECTOR_SIZE) + 1u);
     inputLength = alignedPaddedSize;
 
     inputStorage.resize(inputLength, 0.f);
@@ -39,7 +39,8 @@ struct FilterInput {
     outputStorage.resize(outputLength);
 
     filterLength =
-        alignment * (highestMultipleOfNIn(filter.size() - 1u, alignment) + 1);
+        VECTOR_SIZE *
+        (highestMultipleOfNIn(filter.size() - 1u, VECTOR_SIZE) + 1);
     reversedFilterCoefficientsStorage.resize(filterLength);
 
     std::reverse_copy(filter.begin(), filter.end(),
@@ -87,12 +88,11 @@ struct FilterInput {
   std::vector<SampleType>* cAligned;
 
  private:
-  alignas(alignment) std::vector<float> inputStorage;
+  std::vector<float> inputStorage;
   std::vector<float> reversedFilterCoefficientsStorage;
-  alignas(alignment) std::vector<float> outputStorage;
-  alignas(alignment)
-      std::array<std::vector<float>,
-                 alignment> alignedReversedFilterCoefficientsStorage;
+  std::vector<float> outputStorage;
+  std::array<std::vector<float>,
+                 VECTOR_SIZE> alignedReversedFilterCoefficientsStorage;
 };
 
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
@@ -111,7 +111,7 @@ std::vector<float> applyFirFilterAVX_innerLoopVectorization(
     FilterInput<float>& input);
 
 std::vector<float> applyFirFilterAVX_outerLoopVectorization(
-    FilterInput<float>& input);
+    FilterInput<float, AVX_FLOAT_COUNT * alignof(float)>& input);
 
 std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
     FilterInput<float>& input);

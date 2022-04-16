@@ -77,17 +77,25 @@ std::vector<float> applyFirFilterOuterInnerLoopVectorization(
     y[i + 2] = 0.f;
     y[i + 3] = 0.f;
     for (auto j = 0u; j < input.filterLength; j += 4) {
-      y[i] += x[i + j] * c[j] + x[i + j + 1] * c[j + 1] +
-              x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3];
+      y[i] += x[i + j] * c[j] + 
+          x[i + j + 1] * c[j + 1] +
+              x[i + j + 2] * c[j + 2] + 
+          x[i + j + 3] * c[j + 3];
 
-      y[i + 1] += x[i + j + 1] * c[j + 1] + x[i + j + 2] * c[j + 2] +
-                  x[i + j + 3] * c[j + 3] + x[i + j + 4] * c[j + 4];
+      y[i + 1] += x[i + j + 1] * c[j] + 
+          x[i + j + 2] * c[j + 1] +
+                  x[i + j + 3] * c[j + 2] + 
+          x[i + j + 4] * c[j + 3];
 
-      y[i + 2] += x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3] +
-                  x[i + j + 4] * c[j + 4] + x[i + j + 5] * c[j + 5];
+      y[i + 2] += x[i + j + 2] * c[j] + 
+          x[i + j + 3] * c[j + 1] +
+                  x[i + j + 4] * c[j + 2] + 
+          x[i + j + 5] * c[j + 3];
 
-      y[i + 3] += x[i + j + 3] * c[j + 3] + x[i + j + 4] * c[j + 4] +
-                  x[i + j + 5] * c[j + 5] + x[i + j + 6] * c[j + 6];
+      y[i + 3] += x[i + j + 3] * c[j] + 
+          x[i + j + 4] * c[j + 1] +
+                  x[i + j + 5] * c[j + 2] + 
+          x[i + j + 6] * c[j + 3];
     }
   }
   return input.output();
@@ -122,7 +130,7 @@ std::vector<float> applyFirFilterAVX_innerLoopVectorization(
 }
 
 std::vector<float> applyFirFilterAVX_outerLoopVectorization(
-    FilterInput<float>& input) {
+    FilterInput<float, AVX_FLOAT_COUNT * alignof(float)>& input) {
   const auto* x = input.x;
   const auto* c = input.c;
   auto* y = input.y;
@@ -152,9 +160,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
 
   std::array<float, AVX_FLOAT_COUNT> outStore;
 
-  alignas(AVX_FLOAT_COUNT * alignof(float))
-      std::array<__m256, AVX_FLOAT_COUNT>
-          outChunk;
+  std::array<__m256, AVX_FLOAT_COUNT> outChunk;
 
   for (auto i = 0u; i < input.outputLength; i += AVX_FLOAT_COUNT) {
     for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
@@ -190,8 +196,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
   const auto* x = input.x;
   const auto* cAligned = input.cAligned;
 
-  //alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
-  alignas(__m256) std::vector<float> outStore(AVX_FLOAT_COUNT);
+  alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
 
   std::array<__m256, AVX_FLOAT_COUNT> outChunk;
 

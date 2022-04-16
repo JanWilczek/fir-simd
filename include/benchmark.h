@@ -2,11 +2,11 @@
 #include <chrono>
 #include <functional>
 #include <vector>
+#include <iostream>
 
-namespace fir {
-template <typename SampleType>
-struct FilterInput;
-}
+#include "AudioFile/AudioFile.h"
+#include "FIRFilter.h"
+#include "data/BigRandomVectors.h"
 
 template <typename ResultType>
 struct Result {
@@ -35,11 +35,38 @@ Result<ResultType> benchmark(std::function<ResultType()> function,
   return benchmarkResult;
 }
 
+template<size_t alignment>
 void benchmarkFirFilterImpulseResponses(
-    std::function<std::vector<float>(fir::FilterInput<float>&)> filteringFunction,
-    size_t alignment = 1u);
+    std::function<std::vector<float>(fir::FilterInput<float, alignment>&)>
+        filteringFunction) {
+  std::cout << "Starting impulse responses benchmark." << std::endl;
 
+  AudioFile<float> signal;
+  signal.load("./../include/data/saw.wav");
+  AudioFile<float> impulseResponse;
+  impulseResponse.load("./../include/data/classroomImpulseResponse.wav");
+
+  fir::FilterInput<float, alignment> input(signal.samples[0],
+                                      impulseResponse.samples[0]);
+
+  const auto benchmarkResult = benchmark<std::vector<float>>(
+      [&] { return filteringFunction(input); }, 1);
+
+  std::cout << "Average execution time: "
+            << benchmarkResult.averageTime.count() << " us." << std::endl;
+}
+
+template<size_t alignment>
 void benchmarkFirFilterBigRandomVectors(
-    std::function<std::vector<float>(fir::FilterInput<float>&)>
-        filteringFunction,
-    size_t alignment = 1u);
+    std::function<std::vector<float>(fir::FilterInput<float, alignment>&)>
+        filteringFunction) {
+  std::cout << "Starting big random vectors benchmark." << std::endl;
+
+  fir::FilterInput<float, alignment> input(random1, random2);
+
+  const auto benchmarkResult = benchmark<std::vector<float>>(
+      [&] { return filteringFunction(input); }, 10000);
+
+  std::cout << "Average execution time: "
+            << benchmarkResult.averageTime.count() << " us." << std::endl;
+}

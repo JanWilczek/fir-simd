@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "FIRFilter.h"
-//#include "benchmark.h"
+#include "benchmark.h"
 #include "test.h"
 
 using namespace fir;
@@ -25,7 +25,7 @@ void test() {
       << std::endl;
   testFirFilterBigRandomVectors<alignof(float)>(
       applyFirFilterOuterLoopVectorization);
-  testFirFilterBigRandomVectors<alignof(float)>(
+  testFirFilterBigRandomVectors<AVX_FLOAT_COUNT * alignof(float)>(
       applyFirFilterAVX_outerLoopVectorization);
 
   std::cout << "#------------- Outer-Inner Loop Vectorization "
@@ -46,36 +46,36 @@ void test() {
 void benchmark() {
   //std::cout << "#------------- FIR filter single --------------------#"
   //          << std::endl;
-  //benchmarkFirFilterBigRandomVectors(applyFirFilterSingle);
+  //benchmarkFirFilterBigRandomVectors<alignof(float)>(applyFirFilterSingle);
 
   //std::cout
   //    << "#------------- FIR filter AVX --------------------#" << std::endl
   //    << "#------------- Inner Loop Vectorization --------------------#"
   //    << std::endl;
-  //benchmarkFirFilterBigRandomVectors(
+  //benchmarkFirFilterBigRandomVectors<alignof(float)>(
   //    applyFirFilterAVX_innerLoopVectorization);
 
   //std::cout
   //    << "#------------- Outer Loop Vectorization --------------------#"
   //    << std::endl;
-  //benchmarkFirFilterBigRandomVectors(
+  //benchmarkFirFilterBigRandomVectors<alignof(float)>(
   //    applyFirFilterAVX_outerLoopVectorization);
 
-  //std::cout << "#------------- Outer-Inner Loop Vectorization "
-  //             "--------------------#"
-  //          << std::endl;
-  //benchmarkFirFilterBigRandomVectors(
-  //    applyFirFilterAVX_outerInnerLoopVectorization);
+  std::cout << "#------------- Outer-Inner Loop Vectorization "
+               "--------------------#"
+            << std::endl;
+  benchmarkFirFilterBigRandomVectors<alignof(float)>(
+      applyFirFilterAVX_outerInnerLoopVectorization);
 
-  //std::cout << "#------------- Aligned Outer-Inner Loop Vectorization "
-  //             "--------------------#"
-  //          << std::endl;
-  //benchmarkFirFilterBigRandomVectors(
-  //    applyFirFilterAVX_outerInnerLoopVectorizationAligned, 8u);
+  std::cout << "#------------- Aligned Outer-Inner Loop Vectorization "
+               "--------------------#"
+            << std::endl;
+  benchmarkFirFilterBigRandomVectors<fir::AVX_FLOAT_COUNT * alignof(float)>(
+      applyFirFilterAVX_outerInnerLoopVectorizationAligned);
 }
 
 int main() {
   test();
-  //benchmark();
+  benchmark();
   std::cout << "Success!" << std::endl;
 }

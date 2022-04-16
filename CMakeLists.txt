@@ -5,7 +5,6 @@ project(FIR_SIMD)
 set(SOURCES
     src/FIRFilter.cpp
     src/main.cpp
-    src/test.cpp
 )
 
 add_executable(FIR_SIMD ${SOURCES})
