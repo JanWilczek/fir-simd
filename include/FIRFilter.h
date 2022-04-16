@@ -88,11 +88,12 @@ struct FilterInput {
   std::vector<SampleType>* cAligned;
 
  private:
-  std::vector<SampleType> inputStorage;
-  std::vector<SampleType> reversedFilterCoefficientsStorage;
-  std::vector<SampleType> outputStorage;
-  std::array<std::vector<SampleType>, AVX_FLOAT_COUNT>
-      alignedReversedFilterCoefficientsStorage;
+  alignas(AVX_FLOAT_COUNT) std::vector<float> inputStorage;
+  std::vector<float> reversedFilterCoefficientsStorage;
+  alignas(AVX_FLOAT_COUNT) std::vector<float> outputStorage;
+  alignas(AVX_FLOAT_COUNT)
+      std::array<std::vector<float>,
+                 AVX_FLOAT_COUNT> alignedReversedFilterCoefficientsStorage;
 };
 
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);

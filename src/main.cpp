@@ -6,45 +6,76 @@
 
 using namespace fir;
 
-int main() {
-  std::cout << "#------------- FIR filter single --------------------#"
-            << std::endl;
-  testFirFilterBigRandomVectors(applyFirFilterInnerLoopVectorization, 1u);
-  benchmarkFirFilterBigRandomVectors(applyFirFilterSingle, 1u);
+void test() {
+  //std::cout << "#------------- FIR filter single --------------------#"
+  //          << std::endl;
+  //testFirFilterBigRandomVectors(applyFirFilterInnerLoopVectorization, 1u);
 
-  std::cout << "#------------- FIR filter AVX --------------------#"
-            << std::endl
-            << "#------------- Inner Loop Vectorization --------------------#"
+  //std::cout
+  //    << "#------------- FIR filter AVX --------------------#" << std::endl
+  //    << "#------------- Inner Loop Vectorization --------------------#"
+  //    << std::endl;
+  //testFirFilterBigRandomVectors(applyFirFilterInnerLoopVectorization, 1u);
+  //testFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
+  //                              1u);
+
+  //std::cout
+  //    << "#------------- Outer Loop Vectorization --------------------#"
+  //    << std::endl;
+  //testFirFilterBigRandomVectors(applyFirFilterOuterLoopVectorization, 1u);
+  //testFirFilterBigRandomVectors(applyFirFilterAVX_outerLoopVectorization,
+  //                              1u);
+  //benchmarkFirFilterBigRandomVectors(
+  //    applyFirFilterAVX_outerLoopVectorization, 1u);
+
+  std::cout << "#------------- Outer-Inner Loop Vectorization "
+               "--------------------#"
             << std::endl;
-  testFirFilterBigRandomVectors(applyFirFilterInnerLoopVectorization, 1u);
-  testFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
+  testFirFilterBigRandomVectors(applyFirFilterOuterInnerLoopVectorization,
                                 1u);
-  benchmarkFirFilterBigRandomVectors(applyFirFilterAVX_innerLoopVectorization,
-                                     1u);
-
-  std::cout << "#------------- Outer Loop Vectorization --------------------#"
-            << std::endl;
-  testFirFilterBigRandomVectors(applyFirFilterOuterLoopVectorization, 1u);
-  testFirFilterBigRandomVectors(applyFirFilterAVX_outerLoopVectorization, 1u);
-  benchmarkFirFilterBigRandomVectors(
-      applyFirFilterAVX_outerLoopVectorization, 1u);
-
-  std::cout
-      << "#------------- Outer-Inner Loop Vectorization --------------------#"
-      << std::endl;
-  testFirFilterBigRandomVectors(applyFirFilterOuterInnerLoopVectorization, 1u);
   testFirFilterBigRandomVectors(
       applyFirFilterAVX_outerInnerLoopVectorization, 1u);
+
+  std::cout << "#------------- Aligned Outer-Inner Loop Vectorization "
+               "--------------------#"
+            << std::endl;
+  testFirFilterImpulseResponses(
+      applyFirFilterAVX_outerInnerLoopVectorizationAligned, 1u);
+}
+
+void benchmark() {
+  //std::cout << "#------------- FIR filter single --------------------#"
+  //          << std::endl;
+  //benchmarkFirFilterBigRandomVectors(applyFirFilterSingle, 1u);
+
+  //std::cout
+  //    << "#------------- FIR filter AVX --------------------#" << std::endl
+  //    << "#------------- Inner Loop Vectorization --------------------#"
+  //    << std::endl;
+  //benchmarkFirFilterBigRandomVectors(
+  //    applyFirFilterAVX_innerLoopVectorization, 1u);
+
+  //std::cout
+  //    << "#------------- Outer Loop Vectorization --------------------#"
+  //    << std::endl;
+  //benchmarkFirFilterBigRandomVectors(
+  //    applyFirFilterAVX_outerLoopVectorization, 1u);
+
+  std::cout << "#------------- Outer-Inner Loop Vectorization "
+               "--------------------#"
+            << std::endl;
   benchmarkFirFilterBigRandomVectors(
       applyFirFilterAVX_outerInnerLoopVectorization, 1u);
 
-  //std::cout << "#------------- Aligned Outer-Inner Loop Vectorization "
-               //"--------------------#"
-            //<< std::endl;
-  //testFirFilterBigRandomVectors(
-      //applyFirFilterAVX_outerInnerLoopVectorizationAligned, 1u);
-  //benchmarkFirFilterBigRandomVectors(
-      //applyFirFilterAVX_outerInnerLoopVectorizationAligned, 1u);
+  std::cout << "#------------- Aligned Outer-Inner Loop Vectorization "
+               "--------------------#"
+            << std::endl;
+  benchmarkFirFilterBigRandomVectors(
+      applyFirFilterAVX_outerInnerLoopVectorizationAligned, 8u);
+}
 
+int main() {
+  test();
+  benchmark();
   std::cout << "Success!" << std::endl;
 }

@@ -190,7 +190,8 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
   const auto* x = input.x;
   const auto* cAligned = input.cAligned;
 
-  alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
+  //alignas(__m256) std::array<float, AVX_FLOAT_COUNT> outStore;
+  alignas(__m256) std::vector<float> outStore(AVX_FLOAT_COUNT);
 
   std::array<__m256, AVX_FLOAT_COUNT> outChunk;
 
@@ -200,10 +201,10 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
     }
 
     for (auto j = 0u; j < input.filterLength; j += AVX_FLOAT_COUNT) {
-      auto xChunk = _mm256_loadu_ps(x + i + j);
+      auto xChunk = _mm256_load_ps(x + i + j);
 
       for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
-        auto cChunk = _mm256_loadu_ps(cAligned[k].data() + j);
+        auto cChunk = _mm256_load_ps(cAligned[k].data() + j);
 
         auto temp = _mm256_mul_ps(xChunk, cChunk);
 

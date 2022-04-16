@@ -72,9 +72,9 @@ void testFirFilterImpulseResponses(
   std::cout << "Starting impulse responses test." << std::endl;
 
   AudioFile<float> signal;
-  signal.load("./../include/data/saw.wav");
+  signal.load("saw.wav");
   AudioFile<float> impulseResponse;
-  impulseResponse.load("./../include/data/classroomImpulseResponse.wav");
+  impulseResponse.load("classroomImpulseResponse.wav");
 
   FilterInput<float> input(signal.samples[0], impulseResponse.samples[0], AVX_FLOAT_COUNT);
   FilterInput<float> inputAligned(signal.samples[0], impulseResponse.samples[0],
