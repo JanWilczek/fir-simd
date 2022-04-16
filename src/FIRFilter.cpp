@@ -186,7 +186,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
 }
 
 std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
-    FilterInput<float>& input) {
+    FilterInput<float, AVX_FLOAT_COUNT * alignof(float)>& input) {
   const auto* x = input.x;
   const auto* cAligned = input.cAligned;
 

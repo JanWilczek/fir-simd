@@ -19,12 +19,12 @@ T highestMultipleOfNIn(T x, T N) {
 constexpr auto AVX_FLOAT_COUNT = 8u;
 #endif
 
-template <typename SampleType>
+template <typename SampleType, size_t alignment = alignof(SampleType)>
 struct FilterInput {
+  static constexpr auto VECTOR_SIZE = alignment / alignof(SampleType);
+
   FilterInput(const std::vector<SampleType>& inputSignal,
-              const std::vector<SampleType>& filter,
-              size_t alignment = 1u)
-      : alignment(alignment) {
+              const std::vector<SampleType>& filter) {
     const auto minimalPaddedSize = inputSignal.size() + 2 * filter.size() - 2u;
     const auto alignedPaddedSize =
         alignment *
@@ -53,9 +53,9 @@ struct FilterInput {
     filterLength = reversedFilterCoefficientsStorage.size();
     y = outputStorage.data();
 
-    for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
+    for (auto k = 0u; k < VECTOR_SIZE; ++k) {
       const auto alignedStorageSize =
-          reversedFilterCoefficientsStorage.size() + AVX_FLOAT_COUNT - 1u;
+          reversedFilterCoefficientsStorage.size() + VECTOR_SIZE - 1u;
       alignedReversedFilterCoefficientsStorage[k].resize(alignedStorageSize);
 
       for (auto i = 0u; i < k; ++i) {
@@ -78,7 +78,6 @@ struct FilterInput {
     return result;
   }
 
-  size_t alignment;
   const SampleType* x;  // input signal
   size_t inputLength;
   const SampleType* c;  // reversed filter coefficients
@@ -88,12 +87,12 @@ struct FilterInput {
   std::vector<SampleType>* cAligned;
 
  private:
-  alignas(AVX_FLOAT_COUNT) std::vector<float> inputStorage;
+  alignas(alignment) std::vector<float> inputStorage;
   std::vector<float> reversedFilterCoefficientsStorage;
-  alignas(AVX_FLOAT_COUNT) std::vector<float> outputStorage;
-  alignas(AVX_FLOAT_COUNT)
+  alignas(alignment) std::vector<float> outputStorage;
+  alignas(alignment)
       std::array<std::vector<float>,
-                 AVX_FLOAT_COUNT> alignedReversedFilterCoefficientsStorage;
+                 alignment> alignedReversedFilterCoefficientsStorage;
 };
 
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input);
@@ -118,7 +117,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorization(
     FilterInput<float>& input);
 
 std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
-    FilterInput<float>& input);
+    FilterInput<float, AVX_FLOAT_COUNT * alignof(float)>& input);
 #endif
 
 std::vector<float> applyFirFilter(FilterInput<float>& input);

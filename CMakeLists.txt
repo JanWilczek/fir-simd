@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 project(FIR_SIMD)
 
 set(SOURCES
-    src/benchmark.cpp
     src/FIRFilter.cpp
     src/main.cpp
     src/test.cpp
