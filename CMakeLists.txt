@@ -17,6 +17,9 @@ if (MSVC)
     target_compile_options(FIR_SIMD 
                 PRIVATE /EHsc
                 PRIVATE /arch:AVX)
+else()
+    target_compile_options(FIR_SIMD 
+                PRIVATE -mavx)
 endif()
 
 set_property(TARGET FIR_SIMD PROPERTY CXX_STANDARD 20)

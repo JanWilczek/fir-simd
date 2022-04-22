@@ -209,7 +209,7 @@ std::vector<float> applyFirFilterAVX_outerInnerLoopVectorizationAligned(
       auto xChunk = _mm256_load_ps(x + i + j);
 
       for (auto k = 0u; k < AVX_FLOAT_COUNT; ++k) {
-        auto cChunk = _mm256_load_ps(cAligned[k].data() + j);
+        auto cChunk = _mm256_load_ps(cAligned[k] + j);
 
         auto temp = _mm256_mul_ps(xChunk, cChunk);
 
