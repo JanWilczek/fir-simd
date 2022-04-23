@@ -33,9 +33,17 @@ struct FilterInput {
         (highestMultipleOfNIn(minimalPaddedSize - 1u, VECTOR_SIZE) + 1u);
     inputLength = alignedPaddedSize;
 
+#ifdef __AVX__
+    inputStorage.reset(new avx_alignment_t[inputLength / AVX_FLOAT_COUNT]);
+    std::copy(inputSignal.begin(), inputSignal.end(),
+              reinterpret_cast<float*>(inputStorage.get()) + filter.size() - 1u);
+    x = reinterpret_cast<float*>(inputStorage.get());
+#else
     inputStorage.resize(inputLength, 0.f);
     std::copy(inputSignal.begin(), inputSignal.end(),
               inputStorage.begin() + filter.size() - 1u);
+    x = inputStorage.data();
+#endif
 
     outputLength = inputSignal.size() + filter.size() - 1u;
     outputStorage.resize(outputLength);
@@ -51,7 +59,6 @@ struct FilterInput {
          ++i)
       reversedFilterCoefficientsStorage[i] = 0.f;
 
-    x = inputStorage.data();
     c = reversedFilterCoefficientsStorage.data();
     filterLength = reversedFilterCoefficientsStorage.size();
     y = outputStorage.data();
@@ -95,12 +102,14 @@ struct FilterInput {
 #endif
 
  private:
-  std::vector<float> inputStorage;
   std::vector<float> reversedFilterCoefficientsStorage;
   std::vector<float> outputStorage;
 #ifdef __AVX__
   std::array<std::unique_ptr<avx_alignment_t[]>, AVX_FLOAT_COUNT>
       alignedReversedFilterCoefficientsStorage;
+  std::unique_ptr<avx_alignment_t[]> inputStorage;
+#else
+  std::vector<float> inputStorage;
 #endif
 };
 

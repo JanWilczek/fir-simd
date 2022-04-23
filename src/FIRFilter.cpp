@@ -13,6 +13,12 @@
 
 #include "FIRFilter.h"
 
+namespace {
+bool is_aligned(const void* p, std::size_t n) {
+  std::cout << reinterpret_cast<std::uintptr_t>(p) % n << std::endl;
+}
+}  // namespace
+
 namespace fir {
 std::vector<float> applyFirFilterSingle(FilterInput<float>& input) {
   const auto* x = input.x;
@@ -77,25 +83,17 @@ std::vector<float> applyFirFilterOuterInnerLoopVectorization(
     y[i + 2] = 0.f;
     y[i + 3] = 0.f;
     for (auto j = 0u; j < input.filterLength; j += 4) {
-      y[i] += x[i + j] * c[j] + 
-          x[i + j + 1] * c[j + 1] +
-              x[i + j + 2] * c[j + 2] + 
-          x[i + j + 3] * c[j + 3];
+      y[i] += x[i + j] * c[j] + x[i + j + 1] * c[j + 1] +
+              x[i + j + 2] * c[j + 2] + x[i + j + 3] * c[j + 3];
 
-      y[i + 1] += x[i + j + 1] * c[j] + 
-          x[i + j + 2] * c[j + 1] +
-                  x[i + j + 3] * c[j + 2] + 
-          x[i + j + 4] * c[j + 3];
+      y[i + 1] += x[i + j + 1] * c[j] + x[i + j + 2] * c[j + 1] +
+                  x[i + j + 3] * c[j + 2] + x[i + j + 4] * c[j + 3];
 
-      y[i + 2] += x[i + j + 2] * c[j] + 
-          x[i + j + 3] * c[j + 1] +
-                  x[i + j + 4] * c[j + 2] + 
-          x[i + j + 5] * c[j + 3];
+      y[i + 2] += x[i + j + 2] * c[j] + x[i + j + 3] * c[j + 1] +
+                  x[i + j + 4] * c[j + 2] + x[i + j + 5] * c[j + 3];
 
-      y[i + 3] += x[i + j + 3] * c[j] + 
-          x[i + j + 4] * c[j + 1] +
-                  x[i + j + 5] * c[j + 2] + 
-          x[i + j + 6] * c[j + 3];
+      y[i + 3] += x[i + j + 3] * c[j] + x[i + j + 4] * c[j + 1] +
+                  x[i + j + 5] * c[j + 2] + x[i + j + 6] * c[j + 3];
     }
   }
   return input.output();
