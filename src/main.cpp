@@ -50,7 +50,7 @@ void test() {
 }
 
 void benchmark() {
-  /*std::cout << "#------------- FIR filter single --------------------#"
+  std::cout << "#------------- FIR filter single --------------------#"
             << std::endl;
   benchmarkFirFilterBigRandomVectors<alignof(float)>(applyFirFilterSingle);
 
@@ -81,7 +81,7 @@ void benchmark() {
 }
 
 int main() {
-  //test();
+  test();
   benchmark();
   std::cout << "Success!" << std::endl;
 }
